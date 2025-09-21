@@ -1,0 +1,5 @@
+{
+  "name": "DepEd AI Lesson Plan Generator",
+  "description": "An AI-assisted web application where teachers input competencies, and the system automatically generates a structured lesson plan using the DepEd A-J format, integrated with SOLO taxonomy and HOTS-based objectives.",
+  "requestFramePermissions": []
+}
