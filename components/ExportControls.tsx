@@ -45,7 +45,7 @@ export const ExportControls: React.FC<ExportControlsProps> = ({ lessonPlan, comp
     <div className="flex items-center space-x-2 no-print">
       <button
         onClick={handleCopy}
-        className="flex items-center px-4 py-2 text-sm font-semibold text-text-secondary bg-background-secondary/70 hover:bg-background-content rounded-full transition-all duration-200"
+        className="flex items-center px-4 py-2 text-sm font-semibold text-gray-300 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 rounded-md transition-colors duration-200"
         title="Copy raw text to clipboard"
       >
         {copied ? (
@@ -62,7 +62,7 @@ export const ExportControls: React.FC<ExportControlsProps> = ({ lessonPlan, comp
       </button>
       <button
         onClick={onShowPrintPreview}
-        className="flex items-center px-4 py-2 text-sm font-semibold bg-accent-primary text-accent-text hover:bg-accent-primary-hover rounded-full transition-all duration-200"
+        className="flex items-center px-4 py-2 text-sm font-semibold bg-gradient-to-t from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 rounded-md transition-all duration-200"
         title="Open DepEd formatted print preview"
       >
         <IconPrinter className="w-4 h-4 mr-2" />

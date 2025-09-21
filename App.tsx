@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react';
-import { Header } from './components/Header';
 import { CompetencyInput } from './components/CompetencyInput';
 import { LessonPlanDisplay } from './components/LessonPlanDisplay';
 import { Loader } from './components/Loader';
@@ -10,6 +9,8 @@ import { Welcome } from './components/Welcome';
 import { PrintPreview } from './components/PrintPreview';
 import { InstructionsModal } from './components/InstructionsModal';
 import { AboutModal } from './components/AboutModal';
+import { Header } from './components/Header';
+import { BeamsBackground } from './components/ui/beams-background';
 
 declare const pdfjsLib: any;
 
@@ -136,33 +137,35 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="h-screen w-screen text-text-primary transition-colors duration-300 flex flex-col">
-      <Header onShowInstructions={() => setShowInstructions(true)} onShowAbout={() => setShowAbout(true)} />
-      <main className="flex-1 overflow-y-auto">
-        <div className="container mx-auto p-4 sm:p-6 md:p-8 animate-fadeIn">
-          <div className="spatial-glass rounded-3xl p-6 md:p-8 no-print mb-8">
-            <CompetencyInput
-              value={competency}
-              onChange={(e) => setCompetency(e.target.value)}
-              onSubmit={handleGeneratePlan}
-              isLoading={isLoading}
-              numberOfDays={numberOfDays}
-              onDaysChange={setNumberOfDays}
-              language={language}
-              onLanguageChange={setLanguage}
-              printInfo={printInfo}
-              onPrintInfoChange={setPrintInfo}
-              onFileChange={handleFileChange}
-              onRemoveFile={handleRemoveFile}
-              pdfFileName={pdfFileName}
-              isParsingPdf={isParsingPdf}
-              integrateObjectives={integrateObjectives}
-              onIntegrateObjectivesChange={setIntegrateObjectives}
-            />
-          </div>
+    <BeamsBackground>
+      <div className="text-white">
+        <Header 
+          onShowAbout={() => setShowAbout(true)} 
+          onShowInstructions={() => setShowInstructions(true)} 
+        />
+
+        <main className="container mx-auto p-4 sm:p-6 md:p-8 relative z-10">
+          <CompetencyInput
+            value={competency}
+            onChange={(e) => setCompetency(e.target.value)}
+            onSubmit={handleGeneratePlan}
+            isLoading={isLoading}
+            numberOfDays={numberOfDays}
+            onDaysChange={setNumberOfDays}
+            language={language}
+            onLanguageChange={setLanguage}
+            printInfo={printInfo}
+            onPrintInfoChange={setPrintInfo}
+            onFileChange={handleFileChange}
+            onRemoveFile={handleRemoveFile}
+            pdfFileName={pdfFileName}
+            isParsingPdf={isParsingPdf}
+            integrateObjectives={integrateObjectives}
+            onIntegrateObjectivesChange={setIntegrateObjectives}
+          />
           
           {error && (
-            <div className="spatial-glass rounded-2xl bg-danger-background/50 border-danger-border text-danger-text p-4 mb-8" role="alert">
+            <div className="max-w-4xl mx-auto rounded-lg bg-red-900/50 border border-red-500/50 text-red-300 p-4 my-8" role="alert">
               <p className="font-bold">Error</p>
               <p>{error}</p>
             </div>
@@ -173,26 +176,24 @@ const App: React.FC = () => {
           <div className="print-container">
               {!isLoading && !generatedData && <Welcome />}
               {generatedData && (
-                 <div id="lesson-plan-content" className="spatial-glass rounded-3xl overflow-hidden">
-                  <div className="p-6 md:p-8">
-                    <div className="flex justify-between items-center mb-6 no-print">
-                        <h2 className="text-2xl font-bold text-text-primary">Generated Lesson Plan</h2>
-                        <ExportControls lessonPlan={generatedData.lessonPlan} competency={competency} onShowPrintPreview={() => setShowPrintPreview(true)} />
-                    </div>
-                    <LessonPlanDisplay
-                      lessonPlan={generatedData.lessonPlan}
-                      onUpdate={handlePlanUpdate}
-                    />
+                <div id="lesson-plan-content" className="max-w-4xl mx-auto">
+                  <div className="flex justify-between items-center my-8 no-print">
+                      <h2 className="text-3xl font-bold text-white">Generated Lesson Plan</h2>
+                      <ExportControls lessonPlan={generatedData.lessonPlan} competency={competency} onShowPrintPreview={() => setShowPrintPreview(true)} />
                   </div>
+                  <LessonPlanDisplay
+                    lessonPlan={generatedData.lessonPlan}
+                    onUpdate={handlePlanUpdate}
+                  />
                 </div>
               )}
             </div>
-        </div>
-      </main>
-      
-      {showInstructions && <InstructionsModal onClose={() => setShowInstructions(false)} />}
-      {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
-    </div>
+        </main>
+        
+        {showInstructions && <InstructionsModal onClose={() => setShowInstructions(false)} />}
+        {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
+      </div>
+    </BeamsBackground>
   );
 };
 
