@@ -45,6 +45,7 @@ export function BeamsBackground({
     intensity = "strong",
 }: AnimatedGradientBackgroundProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
     const beamsRef = useRef<Beam[]>([]);
     const animationFrameRef = useRef<number>(0);
     const MINIMUM_BEAMS = 20;
@@ -57,27 +58,32 @@ export function BeamsBackground({
 
     useEffect(() => {
         const canvas = canvasRef.current;
-        if (!canvas) return;
+        const container = containerRef.current;
+        if (!canvas || !container) return;
 
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
         const updateCanvasSize = () => {
             const dpr = window.devicePixelRatio || 1;
-            canvas.width = window.innerWidth * dpr;
-            canvas.height = window.innerHeight * dpr;
-            canvas.style.width = `${window.innerWidth}px`;
-            canvas.style.height = `${window.innerHeight}px`;
+            canvas.width = container.offsetWidth * dpr;
+            canvas.height = container.offsetHeight * dpr;
+            canvas.style.width = `${container.offsetWidth}px`;
+            canvas.style.height = `${container.offsetHeight}px`;
             ctx.scale(dpr, dpr);
 
             const totalBeams = MINIMUM_BEAMS * 1.5;
             beamsRef.current = Array.from({ length: totalBeams }, () =>
-                createBeam(canvas.width, canvas.height)
+                createBeam(container.offsetWidth, container.offsetHeight)
             );
         };
 
-        updateCanvasSize();
+        const resizeObserver = new ResizeObserver(updateCanvasSize);
+        resizeObserver.observe(container);
+        
         window.addEventListener("resize", updateCanvasSize);
+        
+        updateCanvasSize();
 
         function resetBeam(beam: Beam, index: number, totalBeams: number) {
             if (!canvas) return beam;
@@ -161,6 +167,7 @@ export function BeamsBackground({
 
         return () => {
             window.removeEventListener("resize", updateCanvasSize);
+            resizeObserver.disconnect();
             if (animationFrameRef.current) {
                 cancelAnimationFrame(animationFrameRef.current);
             }
@@ -169,6 +176,7 @@ export function BeamsBackground({
 
     return (
         <div
+            ref={containerRef}
             className={cn(
                 "relative min-h-screen w-full overflow-hidden bg-neutral-950",
                 className
