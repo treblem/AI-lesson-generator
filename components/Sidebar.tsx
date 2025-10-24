@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { IconSparkles, IconUpload, IconFile, IconTrash, IconQuestion, IconInfo, IconNewPlan } from './Icon';
+import { IconSparkles, IconUpload, IconFile, IconTrash, IconNewPlan } from './Icon';
 import type { PrintInfo } from '../types';
 import { ThemeSelector } from './ThemeSelector';
 
@@ -21,8 +21,6 @@ interface SidebarProps {
   isParsingPdf: boolean;
   integrateObjectives: boolean;
   onIntegrateObjectivesChange: (value: boolean) => void;
-  onShowInstructions: () => void;
-  onShowAbout: () => void;
   onNewPlan: () => void;
 }
 
@@ -32,7 +30,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   printInfo, onPrintInfoChange,
   onFileChange, onRemoveFile, pdfFileName, isParsingPdf,
   integrateObjectives, onIntegrateObjectivesChange,
-  onShowInstructions, onShowAbout, onNewPlan
+  onNewPlan
 }) => {
 
   const handleInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -217,11 +215,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Footer */}
-      <div className="p-4 flex items-center justify-between border-t border-border-color">
-        <div className="flex items-center space-x-1">
-            <button onClick={onShowInstructions} className="p-2 text-text-secondary hover:text-text-primary rounded-md transition-colors" title="Instructions"><IconQuestion className="w-5 h-5" /></button>
-            <button onClick={onShowAbout} className="p-2 text-text-secondary hover:text-text-primary rounded-md transition-colors" title="About"><IconInfo className="w-5 h-5" /></button>
-        </div>
+      <div className="p-4 flex items-center justify-end border-t border-border-color">
         <ThemeSelector />
       </div>
     </aside>

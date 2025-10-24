@@ -5,11 +5,11 @@ import { GeneratedData, PrintInfo } from './types';
 import { generateLessonPlan } from './services/geminiService';
 import { ExportControls } from './components/ExportControls';
 import { Welcome } from './components/Welcome';
-import { PrintPreview } from './components/PrintPreview';
 import { InstructionsModal } from './components/InstructionsModal';
 import { AboutModal } from './components/AboutModal';
 import { Sidebar } from './components/Sidebar';
 import { motion, AnimatePresence } from 'framer-motion';
+import { IconInfo, IconQuestion } from './components/Icon';
 
 declare const pdfjsLib: any;
 
@@ -26,7 +26,6 @@ const App: React.FC = () => {
   const [pdfText, setPdfText] = useState<string | null>(null);
   const [isParsingPdf, setIsParsingPdf] = useState<boolean>(false);
 
-  const [showPrintPreview, setShowPrintPreview] = useState<boolean>(false);
   const [printInfo, setPrintInfo] = useState<PrintInfo>({
     school: 'Sample National High School',
     teacher: 'Juan Dela Cruz',
@@ -136,17 +135,6 @@ const App: React.FC = () => {
     });
   }, []);
 
-  if (showPrintPreview && generatedData) {
-    return (
-      <PrintPreview
-        data={generatedData}
-        info={printInfo}
-        competency={competency}
-        onClose={() => setShowPrintPreview(false)}
-      />
-    );
-  }
-
   const contentVariants = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeInOut' } },
@@ -188,10 +176,6 @@ const App: React.FC = () => {
           id="lesson-plan-content" 
           className="max-w-5xl mx-auto"
         >
-          <div className="flex justify-between items-center my-8 no-print">
-              <h2 className="text-3xl font-bold text-text-primary">Generated Lesson Plan</h2>
-              <ExportControls lessonPlan={generatedData.lessonPlan} competency={competency} onShowPrintPreview={() => setShowPrintPreview(true)} />
-          </div>
           <LessonPlanDisplay
             lessonPlan={generatedData.lessonPlan}
             onUpdate={handlePlanUpdate}
@@ -207,7 +191,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex text-text-primary">
+    <div className="min-h-screen flex text-text-primary bg-bg-main">
       <Sidebar
         competency={competency}
         onCompetencyChange={(e) => setCompetency(e.target.value)}
@@ -225,16 +209,60 @@ const App: React.FC = () => {
         isParsingPdf={isParsingPdf}
         integrateObjectives={integrateObjectives}
         onIntegrateObjectivesChange={setIntegrateObjectives}
-        onShowAbout={() => setShowAbout(true)} 
-        onShowInstructions={() => setShowInstructions(true)} 
         onNewPlan={handleNewPlan}
       />
 
-      <main className="flex-1 p-4 sm:p-6 md:p-10 overflow-y-auto" style={{ marginLeft: '384px' /* width of sidebar */}}>
-          <AnimatePresence mode="wait">
-            {renderContent()}
-          </AnimatePresence>
-      </main>
+      <div className="relative flex-1" style={{ marginLeft: '384px' /* width of sidebar */}}>
+          <main className="absolute inset-0 overflow-y-auto">
+            {/* Sticky Header */}
+            <header className="sticky top-0 z-10 flex items-center justify-between p-4 sm:p-6 md:px-10 md:py-4 bg-[var(--bg-main)]/80 backdrop-blur-sm border-b border-border-color no-print">
+                <div className="flex-1 min-w-0">
+                  <AnimatePresence>
+                    {generatedData && (
+                      <motion.h2 
+                        key="title"
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="text-2xl font-bold text-text-primary truncate"
+                      >
+                        Generated Lesson Plan
+                      </motion.h2>
+                    )}
+                  </AnimatePresence>
+                </div>
+                <div className="flex items-center gap-4">
+                  <AnimatePresence>
+                    {generatedData && (
+                      <motion.div 
+                        key="exports"
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                      >
+                        <ExportControls 
+                          lessonPlan={generatedData.lessonPlan} 
+                          competency={competency} 
+                          printInfo={printInfo}
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  <div className="flex items-center space-x-1">
+                      <button onClick={() => setShowInstructions(true)} className="p-2 text-text-secondary hover:text-text-primary rounded-md transition-colors" title="Instructions"><IconQuestion className="w-5 h-5" /></button>
+                      <button onClick={() => setShowAbout(true)} className="p-2 text-text-secondary hover:text-text-primary rounded-md transition-colors" title="About"><IconInfo className="w-5 h-5" /></button>
+                  </div>
+                </div>
+            </header>
+
+            {/* Content */}
+            <div className="p-4 sm:p-6 md:p-10">
+              <AnimatePresence mode="wait">
+                {renderContent()}
+              </AnimatePresence>
+            </div>
+          </main>
+      </div>
       
       <AnimatePresence>
         {showInstructions && <InstructionsModal onClose={() => setShowInstructions(false)} />}

@@ -1,6 +1,6 @@
 import React from 'react';
 import type { GeneratedData, PrintInfo } from '../types';
-import { IconPrinter, IconClose } from './Icon';
+import { IconPrinter, IconClose, IconDepEdLogo } from './Icon';
 
 interface PrintPreviewProps {
     data: GeneratedData;
@@ -17,7 +17,7 @@ export const PrintPreview: React.FC<PrintPreviewProps> = ({ data, info, competen
 
     const findSectionContent = (day, sectionId) => {
         const section = day.sections.find(s => s.id === sectionId);
-        return section ? section.content : 'N/A';
+        return section ? section.content : '';
     };
 
     return (
@@ -30,7 +30,7 @@ export const PrintPreview: React.FC<PrintPreviewProps> = ({ data, info, competen
                         left: 0;
                         right: 0;
                         bottom: 0;
-                        background-color: rgba(0, 0, 0, 0.75);
+                        background-color: rgba(11, 15, 25, 0.8);
                         backdrop-filter: blur(10px);
                         -webkit-backdrop-filter: blur(10px);
                         z-index: 50;
@@ -42,20 +42,22 @@ export const PrintPreview: React.FC<PrintPreviewProps> = ({ data, info, competen
                     }
                     .print-page {
                         background-color: white;
-                        width: 11in;
-                        min-height: 8.5in;
-                        padding: 0.5in;
+                        width: 8.5in;
+                        min-height: 11in;
+                        padding: 0.75in;
                         box-shadow: 0 0 15px rgba(0,0,0,0.5);
+                        margin-bottom: 1rem;
                     }
                 }
                 @media print {
                     @page {
-                        size: landscape;
+                        size: portrait;
                         margin: 0.5in;
                     }
                     body {
                         background-color: white !important;
-                        margin: 0;
+                        -webkit-print-color-adjust: exact;
+                        print-color-adjust: exact;
                     }
                     .print-preview-container, .print-controls {
                         display: none !important;
@@ -73,15 +75,11 @@ export const PrintPreview: React.FC<PrintPreviewProps> = ({ data, info, competen
                     .print-page:last-child {
                         page-break-after: auto;
                     }
-                    table, tr, td, th {
-                         border-width: 1px !important;
-                         border-color: black !important;
-                    }
                 }
             `}</style>
 
             <div className="print-preview-container">
-                <div className="print-controls w-full max-w-[11in] flex justify-between items-center mb-4 no-print">
+                <div className="print-controls w-full max-w-[8.5in] flex justify-between items-center mb-4 no-print">
                     <h2 className="text-xl font-bold text-white">Print Preview</h2>
                     <div className="flex items-center gap-4">
                         <button onClick={handlePrint} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
@@ -95,151 +93,102 @@ export const PrintPreview: React.FC<PrintPreviewProps> = ({ data, info, competen
                 </div>
 
                 {data.lessonPlan.days.map((day, index) => (
-                    <div key={index} className="print-page text-black font-serif text-sm">
-                        <h1 className="text-center font-bold text-base mb-4">DAILY LESSON LOG</h1>
-                        <table className="w-full border-collapse border border-black">
-                           <tbody>
-                                <tr>
-                                    <td className="border border-black p-2"><b>School</b></td>
-                                    <td className="border border-black p-2">{info.school}</td>
-                                    <td className="border border-black p-2"><b>Grade Level</b></td>
-                                    <td className="border border-black p-2">{info.gradeLevel}</td>
-                                </tr>
-                                <tr>
-                                    <td className="border border-black p-2"><b>Teacher</b></td>
-                                    <td className="border border-black p-2">{info.teacher}</td>
-                                    <td className="border border-black p-2"><b>Learning Area</b></td>
-                                    <td className="border border-black p-2">{info.learningArea}</td>
-                                </tr>
-                                <tr>
-                                    <td className="border border-black p-2"><b>Teaching Dates & Time</b></td>
-                                    <td className="border border-black p-2">{`Week ${Math.ceil((index+1)/5)}, Day ${day.day}`}</td>
-                                    <td className="border border-black p-2"><b>Quarter</b></td>
-                                    <td className="border border-black p-2">{info.quarter}</td>
-                                </tr>
-                           </tbody>
-                        </table>
-                        
-                        <table className="w-full border-collapse border border-black mt-2">
-                            <thead>
-                                <tr>
-                                    <th className="w-1/2 border border-black p-2 text-left align-top"></th>
-                                    <th className="w-1/2 border border-black p-2 text-left align-top font-bold">DAY {day.day}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td className="border border-black p-2 align-top"><b>I. OBJECTIVES</b></td>
-                                    <td className="border border-black p-2 align-top">
-                                        <div className="pl-4">
-                                            <p className="mb-1"><b>A. Content Standards</b></p>
-                                            <p className="pl-4 mb-2">(Pamantayang Pangnilalaman) - From Curriculum Guide</p>
-                                            <p className="mb-1"><b>B. Performance Standards</b></p>
-                                            <p className="pl-4 mb-2">(Pamantayan sa Pagganap) - From Curriculum Guide</p>
-                                            <p className="mb-1"><b>C. Learning Competencies/Objectives</b></p>
-                                            <p className="pl-4 mb-2">(Mga Kasanayan sa Pagkatuto)</p>
-                                            {(day.objectives || day.soloObjectives || day.hotsObjectives) && (
-                                                <ul className="list-disc pl-10 space-y-1">
-                                                    {day.objectives?.map((obj, i) => <li key={`p-obj-${i}`}>{obj}</li>)}
-                                                    {day.soloObjectives?.map((obj, i) => <li key={`p-solo-${i}`}>{obj}</li>)}
+                    <div key={index} className="print-page text-black" style={{ fontFamily: 'Times New Roman, Times, serif', fontSize: '11pt' }}>
+                        {/* Header */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid black', paddingBottom: '8px' }}>
+                           <IconDepEdLogo className="w-20 h-20" />
+                           <div style={{ textAlign: 'center' }}>
+                              <p style={{ margin: 0, fontSize: '12pt' }}>Republic of the Philippines</p>
+                              <p style={{ margin: 0, fontSize: '14pt', fontWeight: 'bold' }}>Department of Education</p>
+                              <p style={{ margin: 0, fontSize: '12pt' }}>Region VII, Central Visayas</p>
+                              <p style={{ margin: 0, fontSize: '11pt' }}>{info.school}</p>
+                           </div>
+                           <div style={{ width: '80px' }}></div>
+                        </div>
+                        <h1 style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '16pt', margin: '16px 0' }}>DAILY LESSON PLAN</h1>
+
+                        {/* Info Table */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 24px', marginBottom: '16px' }}>
+                            <div>
+                                <p><b>Teacher:</b> {info.teacher}</p>
+                                <p><b>Learning Area:</b> {info.learningArea}</p>
+                            </div>
+                            <div>
+                                <p><b>Teaching Date:</b> {`Week ${Math.ceil((index+1)/5)}, Day ${day.day}`}</p>
+                                <p><b>Grade Level:</b> {info.gradeLevel}</p>
+                                <p><b>Quarter:</b> {info.quarter}</p>
+                            </div>
+                        </div>
+
+                        {/* Main Content */}
+                        <div className="space-y-4">
+                            <div className="section">
+                                <h2 style={{ fontWeight: 'bold', fontSize: '12pt', borderBottom: '1px solid #ccc', paddingBottom: '2px' }}>I. OBJECTIVES (Layunin)</h2>
+                                <div style={{ paddingLeft: '16px', marginTop: '8px' }}>
+                                    <p><b>A. Content Standards:</b> (Pamantayang Pangnilalaman) - <i>From Curriculum Guide</i></p>
+                                    <p><b>B. Performance Standards:</b> (Pamantayan sa Pagganap) - <i>From Curriculum Guide</i></p>
+                                    <p><b>C. Learning Objectives:</b> (Mga Kasanayan sa Pagkatuto)</p>
+                                    {(day.soloObjectives && day.soloObjectives.length > 0) ? (
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '8px' }}>
+                                            <div>
+                                                <h4 style={{ fontWeight: 'bold', marginBottom: '4px' }}>SOLO Taxonomy Objectives:</h4>
+                                                <ul style={{ listStyleType: 'disc', paddingLeft: '20px', margin: 0 }}>
+                                                    {day.soloObjectives.map((obj, i) => <li key={`p-solo-${i}`}>{obj}</li>)}
+                                                </ul>
+                                            </div>
+                                            <div>
+                                                <h4 style={{ fontWeight: 'bold', marginBottom: '4px' }}>HOTS-Based Objectives:</h4>
+                                                <ul style={{ listStyleType: 'disc', paddingLeft: '20px', margin: 0 }}>
                                                     {day.hotsObjectives?.map((obj, i) => <li key={`p-hots-${i}`}>{obj}</li>)}
                                                 </ul>
-                                            )}
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td className="border border-black p-2 align-top"><b>II. CONTENT</b></td>
-                                    <td className="border border-black p-2 align-top">{competency}</td>
-                                </tr>
-                                <tr>
-                                    <td className="border border-black p-2 align-top"><b>III. LEARNING RESOURCES</b></td>
-                                    <td className="border border-black p-2 align-top"></td>
-                                </tr>
-                                <tr>
-                                    <td className="border border-black p-2 align-top"><b className="pl-4">A. References</b></td>
-                                    <td className="border border-black p-2 align-top">
-                                        <p>1. Teacher's Guide pages</p>
-                                        <p>2. Learner's Materials pages</p>
-                                        <p>3. Textbook pages</p>
-                                        <p>4. Additional Materials from Learning Resource (LR) portal</p>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td className="border border-black p-2 align-top"><b className="pl-4">B. Other Learning Resources</b></td>
-                                    <td className="border border-black p-2 align-top"></td>
-                                </tr>
-                                <tr>
-                                    <td className="border border-black p-2 align-top"><b>IV. PROCEDURES</b></td>
-                                    <td className="border border-black p-2 align-top">
-                                        <div className="pl-4">
-                                            <div className="space-y-4">
-                                                <div>
-                                                    <p><b>A. Reviewing previous lesson or presenting the new lesson</b></p>
-                                                    <p className="pl-4 whitespace-pre-wrap">{findSectionContent(day, 'A')}</p>
-                                                </div>
-                                                <div>
-                                                    <p><b>B. Establishing a purpose for the lesson</b></p>
-                                                    <p className="pl-4 whitespace-pre-wrap">{findSectionContent(day, 'B')}</p>
-                                                </div>
-                                                <div>
-                                                    <p><b>C. Presenting examples/instances of the new lesson</b></p>
-                                                    <p className="pl-4 whitespace-pre-wrap">{findSectionContent(day, 'C')}</p>
-                                                </div>
-                                                <div>
-                                                    <p><b>D. Discussing new concepts and practicing new skills #1</b></p>
-                                                    <p className="pl-4 whitespace-pre-wrap">{findSectionContent(day, 'D')}</p>
-                                                </div>
-                                                <div>
-                                                    <p><b>E. Discussing new concepts and practicing new skills #2</b></p>
-                                                    <p className="pl-4 whitespace-pre-wrap">{findSectionContent(day, 'E')}</p>
-                                                </div>
-                                                <div>
-                                                    <p><b>F. Developing mastery (leads to Formative Assessment 3)</b></p>
-                                                    <p className="pl-4 whitespace-pre-wrap">{findSectionContent(day, 'F')}</p>
-                                                </div>
-                                                <div>
-                                                    <p><b>G. Finding practical applications of concepts and skills in daily living</b></p>
-                                                    <p className="pl-4 whitespace-pre-wrap">{findSectionContent(day, 'G')}</p>
-                                                </div>
-                                                <div>
-                                                    <p><b>H. Making generalizations and abstractions about the lesson</b></p>
-                                                    <p className="pl-4 whitespace-pre-wrap">{findSectionContent(day, 'H')}</p>
-                                                </div>
-                                                <div>
-                                                    <p><b>I. Evaluating learning</b></p>
-                                                    <p className="pl-4 whitespace-pre-wrap">{findSectionContent(day, 'I')}</p>
-                                                </div>
-                                                <div>
-                                                    <p><b>J. Additional activities for application or remediation</b></p>
-                                                    <p className="pl-4 whitespace-pre-wrap">{findSectionContent(day, 'J')}</p>
-                                                </div>
                                             </div>
                                         </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td className="border border-black p-2 align-top"><b>V. REMARKS</b></td>
-                                    <td className="border border-black p-2 align-top"></td>
-                                </tr>
-                                 <tr>
-                                    <td className="border border-black p-2 align-top"><b>VI. REFLECTION</b></td>
-                                    <td className="border border-black p-2 align-top">
-                                        <div className="pl-4">
-                                            <div className="space-y-2">
-                                                <p>A. No. of learners who earned 80% in the evaluation</p>
-                                                <p>B. No. of learners who require additional activities for remediation</p>
-                                                <p>C. Did the remedial lessons work? No. of learners who have caught up with the lesson</p>
-                                                <p>D. No. of learners who continue to require remediation</p>
-                                                <p>E. Which of my teaching strategies worked well? Why did these work?</p>
-                                                <p>F. What difficulties did I encounter which my principal or supervisor can help me solve?</p>
-                                                <p>G. What innovation or localized materials did I use/discover which I wish to share with other teachers?</p>
-                                            </div>
+                                    ) : (day.objectives && day.objectives.length > 0) && (
+                                        <ul style={{ listStyleType: 'disc', paddingLeft: '40px', margin: '4px 0 0 0' }}>
+                                            {day.objectives.map((obj, i) => <li key={`p-obj-${i}`}>{obj}</li>)}
+                                        </ul>
+                                    )}
+                                </div>
+                            </div>
+                             <div className="section">
+                                <h2 style={{ fontWeight: 'bold', fontSize: '12pt', borderBottom: '1px solid #ccc', paddingBottom: '2px' }}>II. CONTENT (Nilalaman)</h2>
+                                <p style={{ paddingLeft: '16px', marginTop: '8px' }}>{competency}</p>
+                            </div>
+                             <div className="section">
+                                <h2 style={{ fontWeight: 'bold', fontSize: '12pt', borderBottom: '1px solid #ccc', paddingBottom: '2px' }}>III. LEARNING RESOURCES (Kagamitang Panturo)</h2>
+                                <div style={{ paddingLeft: '16px', marginTop: '8px' }}>
+                                    <p><b>A. References:</b> Teacher's Guide, Learner's Materials, Textbook pages, etc.</p>
+                                    <p><b>B. Other Learning Resources:</b> Online portals, supplementary materials, etc.</p>
+                                </div>
+                            </div>
+                            <div className="section">
+                                <h2 style={{ fontWeight: 'bold', fontSize: '12pt', borderBottom: '1px solid #ccc', paddingBottom: '2px' }}>IV. PROCEDURES (Pamamaraan)</h2>
+                                <div style={{ paddingLeft: '16px', marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                    {day.sections.map(section => (
+                                        <div key={section.id}>
+                                            <p><b>{section.id}. {section.title}</b></p>
+                                            <p style={{ paddingLeft: '24px', whiteSpace: 'pre-wrap', textAlign: 'justify' }}>{section.content}</p>
                                         </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                                    ))}
+                                </div>
+                            </div>
+                             <div className="section">
+                                <h2 style={{ fontWeight: 'bold', fontSize: '12pt', borderBottom: '1px solid #ccc', paddingBottom: '2px' }}>V. REMARKS (Mga Tala)</h2>
+                                <div style={{ padding: '16px', marginTop: '8px', minHeight: '40px' }}></div>
+                            </div>
+                             <div className="section">
+                                <h2 style={{ fontWeight: 'bold', fontSize: '12pt', borderBottom: '1px solid #ccc', paddingBottom: '2px' }}>VI. REFLECTION (Pagninilay)</h2>
+                                <div style={{ paddingLeft: '16px', marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <p>A. No. of learners who earned 80% in the evaluation</p>
+                                    <p>B. No. of learners who require additional activities for remediation</p>
+                                    <p>C. Did the remedial lessons work? No. of learners who have caught up with the lesson</p>
+                                    <p>D. No. of learners who continue to require remediation</p>
+                                    <p>E. Which of my teaching strategies worked well? Why did these work?</p>
+                                    <p>F. What difficulties did I encounter which my principal or supervisor can help me solve?</p>
+                                    <p>G. What innovation or localized materials did I use/discover which I wish to share with other teachers?</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 ))}
             </div>

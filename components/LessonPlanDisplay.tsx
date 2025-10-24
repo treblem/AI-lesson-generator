@@ -73,6 +73,7 @@ export const LessonPlanDisplay: React.FC<LessonPlanDisplayProps> = ({ lessonPlan
                     contentEditable
                     onInput={(e) => handleInput(e, dayIndex, section.id)}
                     suppressContentEditableWarning={true}
+                    role="textbox"
                     className="max-w-none p-3 form-input-style text-text-secondary print-p transition-all"
                     style={{ whiteSpace: 'pre-wrap' }}
                   >
