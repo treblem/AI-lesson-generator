@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { IconSparkles, IconUpload, IconFile, IconTrash, IconNewPlan } from './Icon';
+import { IconSparkles, IconUpload, IconFile, IconTrash, IconNewPlan, IconClose } from './Icon';
 import type { PrintInfo } from '../types';
 import { ThemeSelector } from './ThemeSelector';
 
@@ -22,6 +22,8 @@ interface SidebarProps {
   integrateObjectives: boolean;
   onIntegrateObjectivesChange: (value: boolean) => void;
   onNewPlan: () => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -30,7 +32,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   printInfo, onPrintInfoChange,
   onFileChange, onRemoveFile, pdfFileName, isParsingPdf,
   integrateObjectives, onIntegrateObjectivesChange,
-  onNewPlan
+  onNewPlan, isOpen, onClose
 }) => {
 
   const handleInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,7 +45,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const isGenerateDisabled = isLoading || isParsingPdf || (!competency.trim() && !pdfFileName);
 
   return (
-    <aside className="fixed top-0 left-0 h-screen w-96 bg-sidebar flex flex-col no-print border-r border-border-color">
+    <aside className={`fixed top-0 left-0 h-screen w-96 bg-sidebar flex flex-col no-print border-r border-border-color z-40 transform-gpu transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}>
       {/* Header */}
       <div className="p-6 flex justify-between items-center border-b border-border-color">
         <div>
@@ -52,16 +54,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </h1>
             <p className="text-sm text-text-secondary">by iamtr3b</p>
         </div>
-        <motion.button 
-            onClick={onNewPlan}
-            whileHover={{ scale: 1.05 }} 
-            whileTap={{ scale: 0.95 }} 
-            className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg bg-card-dark text-text-secondary hover:text-text-primary transition-colors"
-            title="Start a new lesson plan"
-        >
-            <IconNewPlan className="w-4 h-4" />
-            New Plan
-        </motion.button>
+        <div className="flex items-center gap-2">
+            <motion.button 
+                onClick={onNewPlan}
+                whileHover={{ scale: 1.05 }} 
+                whileTap={{ scale: 0.95 }} 
+                className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg bg-card-dark text-text-secondary hover:text-text-primary transition-colors"
+                title="Start a new lesson plan"
+            >
+                <IconNewPlan className="w-4 h-4" />
+                New Plan
+            </motion.button>
+            <button onClick={onClose} className="p-1.5 -mr-2 rounded-full text-text-secondary hover:text-text-primary transition-colors lg:hidden" title="Close sidebar">
+              <IconClose className="w-5 h-5" />
+            </button>
+        </div>
       </div>
 
       {/* Main Content (Scrollable) */}
@@ -109,7 +116,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div>
             <h3 className="text-lg font-semibold">Step 2: Customize Plan</h3>
             <p className="text-sm text-text-secondary mb-4">Set the details for the lesson plan header.</p>
-             <div className="grid grid-cols-2 gap-3">
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {Object.entries({school: 'School', teacher: 'Teacher', gradeLevel: 'Grade', learningArea: 'Area', quarter: 'Quarter'}).map(([key, label]) => (
                     <input key={key} type="text" name={key} placeholder={label} value={printInfo[key as keyof PrintInfo]} onChange={handleInfoChange} className="form-input w-full p-2 form-input-style text-sm" />
                 ))}

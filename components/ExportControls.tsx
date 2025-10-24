@@ -49,157 +49,146 @@ export const ExportControls: React.FC<ExportControlsProps> = ({ lessonPlan, comp
     try {
       const { school, teacher, gradeLevel, learningArea, quarter } = printInfo;
       const font = "Times New Roman";
-      const fontSize = 22; // 11pt
+      const fontSize = 18; // 9pt
 
-      const createSectionTitle = (text: string) => new Paragraph({
-        children: [new TextRun({ text, bold: true, size: 24, font })],
-        spacing: { before: 300, after: 150 },
-      });
+      // FIX: Updated the type of `content` to allow either a string or an array.
+      const createTableCell = (content: string | (string | Paragraph)[], options: any = {}) => {
+        const paragraphs = Array.isArray(content)
+          ? content.map(item => typeof item === 'string' ? new Paragraph({ children: [new TextRun({ text: item, font, size: fontSize })], spacing: { after: 80 } }) : item)
+          : [new Paragraph({ children: [new TextRun({ text: content, font, size: fontSize })], spacing: { after: 80 } })];
 
-      const createNormalText = (text: string, indent = true) => new Paragraph({
-        children: [new TextRun({ text, size: fontSize, font })],
-        indent: indent ? { left: 432 } : {}, // 0.3 inch indent
-        spacing: { after: 100 }
-      });
-
-      let docChildren: any[] = [];
-
-      for (const [index, day] of lessonPlan.days.entries()) {
-        
-        // Header
-        docChildren.push(new Paragraph({ text: "Republic of the Philippines", alignment: AlignmentType.CENTER, style: 'headerStyle' }));
-        docChildren.push(new Paragraph({ text: "Department of Education", alignment: AlignmentType.CENTER, style: 'headerStyle', children: [new TextRun({ text: "Department of Education", bold: true })] }));
-        docChildren.push(new Paragraph({ text: "Region VII, Central Visayas", alignment: AlignmentType.CENTER, style: 'headerStyle' }));
-        docChildren.push(new Paragraph({ text: school, alignment: AlignmentType.CENTER, spacing: { after: 300 }, style: 'headerStyle' }));
-
-        // Title
-        docChildren.push(new Paragraph({
-          children: [new TextRun({ text: "DAILY LESSON PLAN", bold: true, size: 32, font })],
-          alignment: AlignmentType.CENTER,
-          spacing: { after: 300 }
-        }));
-        
-        // Info Table
-        const infoTable = new Table({
-          width: { size: 100, type: WidthType.PERCENTAGE },
-          borders: { insideHorizontal: { style: BorderStyle.NONE }, insideVertical: { style: BorderStyle.NONE }, top: { style: BorderStyle.NONE }, bottom: { style: BorderStyle.NONE }, left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE } },
-          rows: [
-            new TableRow({
-              children: [
-                new TableCell({ children: [
-                    new Paragraph({ children: [new TextRun({ text: "Teacher: ", bold: true }), new TextRun(teacher)]}),
-                    new Paragraph({ children: [new TextRun({ text: "Learning Area: ", bold: true }), new TextRun(learningArea)]}),
-                ], verticalAlign: VerticalAlign.TOP }),
-                new TableCell({ children: [
-                    new Paragraph({ children: [new TextRun({ text: "Teaching Date: ", bold: true }), new TextRun(`Week ${Math.ceil((index+1)/5)}, Day ${day.day}`)]}),
-                    new Paragraph({ children: [new TextRun({ text: "Grade Level: ", bold: true }), new TextRun(gradeLevel)]}),
-                    new Paragraph({ children: [new TextRun({ text: "Quarter: ", bold: true }), new TextRun(quarter)]}),
-                ], verticalAlign: VerticalAlign.TOP }),
-              ],
-            }),
-          ],
+        return new TableCell({
+          children: paragraphs,
+          verticalAlign: VerticalAlign.TOP,
+          ...options,
         });
-        docChildren.push(infoTable);
+      };
 
-        // I. OBJECTIVES
-        docChildren.push(createSectionTitle("I. OBJECTIVES (Layunin)"));
-        docChildren.push(createNormalText("A. Content Standards: (Pamantayang Pangnilalaman) - From Curriculum Guide"));
-        docChildren.push(createNormalText("B. Performance Standards: (Pamantayan sa Pagganap) - From Curriculum Guide"));
-        docChildren.push(createNormalText("C. Learning Objectives: (Mga Kasanayan sa Pagkatuto)"));
-        if (day.soloObjectives && day.soloObjectives.length > 0) {
-          const objectivesTable = new Table({
-            width: { size: 100, type: WidthType.PERCENTAGE },
-            columnWidths: [4500, 4500],
-            indent: { size: 432, type: WidthType.DXA },
-            borders: { insideHorizontal: { style: BorderStyle.NONE }, insideVertical: { style: BorderStyle.NONE }, top: { style: BorderStyle.NONE }, bottom: { style: BorderStyle.NONE }, left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE } },
-            rows: [ new TableRow({ children: [
-              new TableCell({ children: [
-                new Paragraph({ children: [new TextRun({ text: "SOLO Taxonomy Objectives:", bold: true })]}) ,
-                ...day.soloObjectives.map(obj => new Paragraph({ text: obj, bullet: { level: 0 } }))
-              ]}),
-              new TableCell({ children: [
-                new Paragraph({ children: [new TextRun({ text: "HOTS-Based Objectives:", bold: true })]}) ,
-                ...(day.hotsObjectives || []).map(obj => new Paragraph({ text: obj, bullet: { level: 0 } }))
-              ]}),
-            ]})]
-          });
-          docChildren.push(objectivesTable);
-        } else if (day.objectives && day.objectives.length > 0) {
-          day.objectives.forEach(obj => docChildren.push(new Paragraph({ text: obj, bullet: { level: 0 }, indent: { left: 864 } })));
-        }
+      const createSectionHeaderCell = (text: string) => new TableCell({
+        children: [new Paragraph({ children: [new TextRun({ text, font, size: fontSize, bold: true })] })],
+        verticalAlign: VerticalAlign.TOP,
+      });
 
-        // II. CONTENT
-        docChildren.push(createSectionTitle("II. CONTENT (Nilalaman)"));
-        docChildren.push(createNormalText(competency));
-
-        // III. LEARNING RESOURCES
-        docChildren.push(createSectionTitle("III. LEARNING RESOURCES (Kagamitang Panturo)"));
-        docChildren.push(createNormalText("A. References: Teacher's Guide, Learner's Materials, Textbook pages, etc."));
-        docChildren.push(createNormalText("B. Other Learning Resources: Online portals, supplementary materials, etc."));
-
-        // IV. PROCEDURES
-        docChildren.push(createSectionTitle("IV. PROCEDURES (Pamamaraan)"));
-        day.sections.forEach(section => {
-          docChildren.push(new Paragraph({
+      // Header Table
+      const headerTable = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: [
+          new TableRow({
             children: [
-              new TextRun({ text: `${section.id}. ${section.title}`, bold: true, size: fontSize, font }),
-            ],
-            indent: { left: 432 },
-            spacing: { before: 150 }
-          }));
-          section.content.split('\n').forEach(line => {
-            if (line.trim()) {
-              docChildren.push(new Paragraph({
-                text: line,
-                indent: { left: 864 },
-                style: 'normalStyle'
-              }));
-            }
-          });
-        });
+              new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Grade 1 to 12", font, size: fontSize })] })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+              new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: `School: ${school}`, font, size: fontSize })] })], width: { size: 40, type: WidthType.PERCENTAGE } }),
+              new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: `Grade Level: ${gradeLevel}`, font, size: fontSize })] })], width: { size: 40, type: WidthType.PERCENTAGE } }),
+            ]
+          }),
+          new TableRow({
+            children: [
+              new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "DAILY LESSON LOG", font, size: fontSize, bold: true })] })] }),
+              new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: `Teacher: ${teacher}`, font, size: fontSize })] })] }),
+              new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: `Learning Area: ${learningArea}`, font, size: fontSize })] })] }),
+            ]
+          }),
+          new TableRow({
+            children: [
+              new TableCell({ children: [] }),
+              new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Teaching Dates and Time:", font, size: fontSize })] })] }),
+              new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: `Quarter: ${quarter}`, font, size: fontSize })] })] }),
+            ]
+          }),
+        ]
+      });
+      
+      const daysOfWeek = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"];
+      const tableRows: TableRow[] = [];
 
-        // V. REMARKS
-        docChildren.push(createSectionTitle("V. REMARKS (Mga Tala)"));
-        
-        // VI. REFLECTION
-        docChildren.push(createSectionTitle("VI. REFLECTION (Pagninilay)"));
-        const reflectionPoints = [
-          "A. No. of learners who earned 80% in the evaluation",
-          "B. No. of learners who require additional activities for remediation",
-          "C. Did the remedial lessons work? No. of learners who have caught up with the lesson",
-          "D. No. of learners who continue to require remediation",
-          "E. Which of my teaching strategies worked well? Why did these work?",
-          "F. What difficulties did I encounter which my principal or supervisor can help me solve?",
-          "G. What innovation or localized materials did I use/discover which I wish to share with other teachers?",
-        ];
-        reflectionPoints.forEach(point => docChildren.push(createNormalText(point)));
-        
-        if (index < lessonPlan.days.length - 1) {
-            docChildren.push(new Paragraph({ pageBreakBefore: true }));
-        }
-      }
+      // Main Header Row
+      tableRows.push(new TableRow({
+        children: [
+          createTableCell(""),
+          ...daysOfWeek.map(day => createTableCell([new Paragraph({ children: [new TextRun({ text: day, font, size: fontSize, bold: true })], alignment: AlignmentType.CENTER })])),
+        ],
+        tableHeader: true,
+      }));
+
+      // I. OBJECTIVES
+      tableRows.push(new TableRow({ children: [createSectionHeaderCell("I. OBJECTIVES"), createTableCell("", { columnSpan: 5 })] }));
+      const contentStandardText = "The learners demonstrate their expanding vocabulary knowledge and grammatical awareness, comprehension of literacy and informational texts, and composing and creating processes; and their receptive and productive skills in order to produce age appropriate and gender-responsive texts based on one's purpose, context and target audience.";
+      tableRows.push(new TableRow({ children: [createTableCell(["A. Content Standards"]), createTableCell(contentStandardText, { columnSpan: 5 })] }));
+      const performanceStandardText = "The learners apply comprehension of literacy and informational text and produce narrative and expository text based on their purpose, context and target audience using simple, compound, and complex sentence, and age - appropriate and gender - sensitive language.";
+      tableRows.push(new TableRow({ children: [createTableCell(["B. Performance Standards"]), createTableCell(performanceStandardText, { columnSpan: 5 })] }));
+      
+      const competencyCells = daysOfWeek.map((_, index) => {
+        const day = lessonPlan.days[index];
+        if (!day) return createTableCell("");
+        let objectives: Paragraph[] = [new Paragraph({ children: [new TextRun({ text: competency, font, size: fontSize })]})];
+         if (day.soloObjectives || day.hotsObjectives || day.objectives) {
+            objectives.push(new Paragraph("Learning Competency:"));
+            (day.soloObjectives || []).forEach(o => objectives.push(new Paragraph({ text: o, bullet: { level: 0 }, style: 'default' })));
+            (day.hotsObjectives || []).forEach(o => objectives.push(new Paragraph({ text: o, bullet: { level: 0 }, style: 'default' })));
+            (day.objectives || []).forEach(o => objectives.push(new Paragraph({ text: o, bullet: { level: 0 }, style: 'default' })));
+         }
+        return createTableCell(objectives);
+      });
+      tableRows.push(new TableRow({ children: [createTableCell(["C. Learning Competencies / Objectives"]), ...competencyCells] }));
+      
+      // II. CONTENT
+      tableRows.push(new TableRow({ children: [createSectionHeaderCell("II. CONTENT"), ...daysOfWeek.map((_, i) => lessonPlan.days[i] ? createTableCell(competency) : createTableCell(""))] }));
+      
+      // III. LEARNING RESOURCES
+      tableRows.push(new TableRow({ children: [createSectionHeaderCell("III. LEARNING RESOURCES"), createTableCell("", { columnSpan: 5 })] }));
+      tableRows.push(new TableRow({ children: [createTableCell(["A. References"]), createTableCell("", { columnSpan: 5 })] }));
+      tableRows.push(new TableRow({ children: [createTableCell(["1. Teacher's Guide Pages"]), createTableCell("", { columnSpan: 5 })] }));
+      tableRows.push(new TableRow({ children: [createTableCell(["2. Learner's Materials Pages"]), createTableCell("", { columnSpan: 5 })] }));
+      tableRows.push(new TableRow({ children: [createTableCell(["3. Textbooks Pages"]), createTableCell("", { columnSpan: 5 })] }));
+      tableRows.push(new TableRow({ children: [createTableCell(["4. Additional Materials from Learning Resources (LR)Portal"]), createTableCell("", { columnSpan: 5 })] }));
+      tableRows.push(new TableRow({ children: [createTableCell(["B. Other Learning Resources"]), createTableCell("", { columnSpan: 5 })] }));
+      
+      // IV. PROCEDURES
+      tableRows.push(new TableRow({ children: [createSectionHeaderCell("IV. PROCEDURES"), createTableCell("", { columnSpan: 5 })] }));
+      const procedureTitles = lessonPlan.days[0]?.sections.map(s => `${s.id}. ${s.title}`) || [];
+      procedureTitles.forEach((title, sectionIndex) => {
+        const procedureCells = daysOfWeek.map((_, dayIndex) => {
+          const day = lessonPlan.days[dayIndex];
+          return (day && day.sections[sectionIndex]) ? createTableCell(day.sections[sectionIndex].content) : createTableCell("");
+        });
+        tableRows.push(new TableRow({ children: [createTableCell([title]), ...procedureCells] }));
+      });
+      
+      // V. REMARKS & VI. REFLECTION
+      tableRows.push(new TableRow({ children: [createSectionHeaderCell("V. REMARKS"), createTableCell("", { columnSpan: 5 })] }));
+      tableRows.push(new TableRow({ children: [createSectionHeaderCell("VI. REFLECTION"), createTableCell("", { columnSpan: 5 })] }));
+      const reflectionPoints = [
+        "A. No. of learners who earned 80% in the evaluation", "B. No. of learners who require additional activities for remediation", "C. Did the remedial lessons work? No. of learners who have caught up with the lesson", "D. No. of learners who continue to require remediation", "E. Which of my teaching strategies worked well? Why did these work?", "F. What difficulties did I encounter which my principal or supervisor can help me solve?", "G. What innovation or localized materials did I use/discover which I wish to share with other teachers?",
+      ];
+      reflectionPoints.forEach(point => {
+        tableRows.push(new TableRow({ children: [createTableCell([point]), createTableCell("", { columnSpan: 5 })] }));
+      });
+
+      const mainTable = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: tableRows,
+      });
 
       const doc = new Document({
         styles: {
           paragraphStyles: [{
-            id: 'headerStyle',
-            name: 'Header Style',
-            run: { font, size: 22 }, // 11pt
-          }, {
-            id: 'normalStyle',
-            name: 'Normal Style',
-            run: { font, size: 22 }, // 11pt
+            id: 'default',
+            name: 'Default Paragraph Style',
+            run: { font, size: fontSize },
           }]
         },
         sections: [{
           properties: {
             page: {
-              margin: {
-                top: 720, right: 720, bottom: 720, left: 720 // 0.5 inch margins
-              }
+              size: { orientation: 'landscape' },
+              margin: { top: 720, right: 720, bottom: 720, left: 720 }
             }
           },
-          children: docChildren
+          children: [
+            new Paragraph({ text: "SAMPLE DETAILED LESSON PLAN (DLP)", alignment: AlignmentType.CENTER }),
+            headerTable,
+            new Paragraph(" "),
+            mainTable
+          ]
         }]
       });
 
@@ -207,7 +196,7 @@ export const ExportControls: React.FC<ExportControlsProps> = ({ lessonPlan, comp
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "lesson-plan.docx";
+      a.download = "lesson-plan-weekly.docx";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

@@ -23,7 +23,7 @@ export const LessonPlanDisplay: React.FC<LessonPlanDisplayProps> = ({ lessonPlan
           </div>
           <div className="p-6">
             {(day.soloObjectives && day.soloObjectives.length > 0) ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 print-section">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 print-section">
                 <div className="bg-sidebar rounded-lg p-5 border border-border-color">
                   <h4 className="flex items-center text-md font-semibold text-[var(--accent-color-start)] mb-3">
                     <IconTarget className="w-5 h-5 mr-2" />

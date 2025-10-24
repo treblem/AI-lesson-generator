@@ -151,7 +151,30 @@ export const generateLessonPlan = async (competency: string, numberOfDays: numbe
         throw new Error("Received malformed data from API");
     }
 
-    return parsedData as GeneratedData;
+    // Post-process to fix any incorrect section lettering from the AI (e.g., duplicate 'H' sections).
+    const correctedDays = parsedData.lessonPlan.days.map((day: any) => {
+        const sectionLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+        if (day.sections && Array.isArray(day.sections)) {
+            const correctedSections = day.sections.map((section: any, index: number) => {
+                if (index < sectionLetters.length) {
+                    return { ...section, id: sectionLetters[index] };
+                }
+                return section;
+            });
+            return { ...day, sections: correctedSections };
+        }
+        return day;
+    });
+
+    const correctedData = {
+        ...parsedData,
+        lessonPlan: {
+            ...parsedData.lessonPlan,
+            days: correctedDays,
+        },
+    };
+
+    return correctedData as GeneratedData;
 
   } catch (error) {
     console.error('Error calling Gemini API:', error);

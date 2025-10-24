@@ -9,7 +9,7 @@ import { InstructionsModal } from './components/InstructionsModal';
 import { AboutModal } from './components/AboutModal';
 import { Sidebar } from './components/Sidebar';
 import { motion, AnimatePresence } from 'framer-motion';
-import { IconInfo, IconQuestion } from './components/Icon';
+import { IconInfo, IconQuestion, IconMenu } from './components/Icon';
 
 declare const pdfjsLib: any;
 
@@ -36,6 +36,7 @@ const App: React.FC = () => {
   
   const [showInstructions, setShowInstructions] = useState<boolean>(false);
   const [showAbout, setShowAbout] = useState<boolean>(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
   const handleNewPlan = () => {
     setGeneratedData(null);
@@ -47,6 +48,7 @@ const App: React.FC = () => {
     if (fileInput) {
       fileInput.value = '';
     }
+    setIsSidebarOpen(false);
   };
 
 
@@ -100,6 +102,7 @@ const App: React.FC = () => {
     setIsLoading(true);
     setError(null);
     setGeneratedData(null);
+    setIsSidebarOpen(false);
     try {
       const data = await generateLessonPlan(competency, numberOfDays, language, pdfText, integrateObjectives);
       setGeneratedData(data);
@@ -133,6 +136,10 @@ const App: React.FC = () => {
         lessonPlan: { days: updatedDays },
       };
     });
+  }, []);
+  
+  const handleCompetencyChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setCompetency(e.target.value);
   }, []);
 
   const contentVariants = {
@@ -192,9 +199,21 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen flex text-text-primary bg-bg-main">
+      <AnimatePresence>
+        {isSidebarOpen && (
+            <motion.div
+                className="fixed inset-0 bg-black/60 z-30 lg:hidden"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsSidebarOpen(false)}
+            />
+        )}
+      </AnimatePresence>
+      
       <Sidebar
         competency={competency}
-        onCompetencyChange={(e) => setCompetency(e.target.value)}
+        onCompetencyChange={handleCompetencyChange}
         onGenerate={handleGeneratePlan}
         isLoading={isLoading}
         numberOfDays={numberOfDays}
@@ -210,13 +229,18 @@ const App: React.FC = () => {
         integrateObjectives={integrateObjectives}
         onIntegrateObjectivesChange={setIntegrateObjectives}
         onNewPlan={handleNewPlan}
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
       />
 
-      <div className="relative flex-1" style={{ marginLeft: '384px' /* width of sidebar */}}>
+      <div className="relative flex-1 lg:ml-96">
           <main className="absolute inset-0 overflow-y-auto">
             {/* Sticky Header */}
             <header className="sticky top-0 z-10 flex items-center justify-between p-4 sm:p-6 md:px-10 md:py-4 bg-[var(--bg-main)]/80 backdrop-blur-sm border-b border-border-color no-print">
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 flex items-center gap-4">
+                    <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 text-text-secondary hover:text-text-primary rounded-md transition-colors lg:hidden" title="Open sidebar">
+                        <IconMenu className="w-6 h-6" />
+                    </button>
                   <AnimatePresence>
                     {generatedData && (
                       <motion.h2 
