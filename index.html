@@ -10,24 +10,108 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-      :root {
-        --gradient-color: #8350e8;
-        --sparkles-color: #ffffff;
+      :root, [data-theme='dark'] {
+        --bg-main: #0B0F19;
+        --bg-sidebar: #121827;
+        --bg-card-dark: #171E2F;
+        --border-color: rgba(169, 178, 201, 0.1);
+        --accent-color-start: #C026D3; /* fuchsia-600 */
+        --accent-color-end: #7C3AED;   /* violet-600 */
+        --text-primary: #E5E7EB;      /* gray-200 */
+        --text-secondary: #9CA3AF;    /* gray-400 */
+        --text-inverted-primary: #ffffff;
+        --input-bg: rgba(42, 53, 80, 0.3);
+        --input-bg-focus: rgba(42, 53, 80, 0.5);
+        --segmented-bg: #0B0F19;
+        --segmented-pill-bg: #171E2F;
+        --bg-subtle: rgba(255, 255, 255, 0.05);
+        --bg-subtle-hover: rgba(255, 255, 255, 0.1);
+        --toggle-bg-off: #404040; /* neutral-700 */
+        --bg-disabled: #262626; /* neutral-800 */
+        --text-disabled: #6B7280; /* gray-500 */
+      }
+       [data-theme='light'] {
+        --bg-main: #F9FAFB;        /* gray-50 */
+        --bg-sidebar: #FFFFFF;
+        --bg-card-dark: #FFFFFF;
+        --border-color: #E5E7EB;       /* gray-200 */
+        --accent-color-start: #C026D3;
+        --accent-color-end: #7C3AED;
+        --text-primary: #1F2937;      /* gray-800 */
+        --text-secondary: #6B7280;    /* gray-500 */
+        --text-inverted-primary: #ffffff;
+        --input-bg: #F3F4F6;          /* gray-100 */
+        --input-bg-focus: #FFFFFF;
+        --segmented-bg: #F3F4F6;
+        --segmented-pill-bg: #FFFFFF;
+        --bg-subtle: rgba(0, 0, 0, 0.04);
+        --bg-subtle-hover: rgba(0, 0, 0, 0.05);
+        --toggle-bg-off: #E5E7EB; /* gray-200 */
+        --bg-disabled: #E5E7EB; /* gray-200 */
+        --text-disabled: #9CA3AF; /* gray-400 */
       }
       body {
         font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        background-color: var(--bg-main);
+        color: var(--text-primary);
+        transition: background-color 0.3s ease, color 0.3s ease;
       }
-      .bg-card {
-        background-color: #09090b;
+      
+      .bg-card-dark {
+        background-color: var(--bg-card-dark);
+        border: 1px solid var(--border-color);
+        transition: background-color 0.3s ease, border-color 0.3s ease;
       }
-      .text-card-foreground {
-        color: #fafafa;
+
+      .bg-sidebar {
+        background-color: var(--bg-sidebar);
+        transition: background-color 0.3s ease;
       }
-      .border {
-        border-color: #27272a;
+
+      [data-theme='light'] .bg-card-dark,
+      [data-theme='light'] .bg-sidebar {
+        box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.05);
       }
-      .text-muted-foreground {
-        color: #a1a1aa;
+
+      .form-input-style {
+        background: var(--input-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        color: var(--text-primary);
+        transition: all 0.2s ease-in-out;
+      }
+      .form-input-style::placeholder {
+        color: var(--text-secondary);
+        opacity: 0.8;
+      }
+      .form-input-style:focus, .form-input-style:focus-within {
+        outline: none;
+        border-color: var(--accent-color-end);
+        box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.3); /* violet-600 with opacity */
+        background: var(--input-bg-focus);
+      }
+      .text-gradient {
+        background: linear-gradient(45deg, var(--accent-color-start), var(--accent-color-end));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-fill-color: transparent;
+      }
+      /* Custom scrollbar for webkit browsers */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background-color: rgba(169, 178, 201, 0.1);
+        border-radius: 10px;
+        border: 2px solid transparent;
+        background-clip: content-box;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(169, 178, 201, 0.2);
       }
       @media print {
         .no-print {
@@ -56,7 +140,7 @@
 }
 </script>
 </head>
-  <body class="bg-black">
+  <body>
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

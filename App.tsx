@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react';
-import { CompetencyInput } from './components/CompetencyInput';
 import { LessonPlanDisplay } from './components/LessonPlanDisplay';
 import { Loader } from './components/Loader';
 import { GeneratedData, PrintInfo } from './types';
@@ -9,8 +8,8 @@ import { Welcome } from './components/Welcome';
 import { PrintPreview } from './components/PrintPreview';
 import { InstructionsModal } from './components/InstructionsModal';
 import { AboutModal } from './components/AboutModal';
-import { Header } from './components/Header';
-import { BeamsBackground } from './components/ui/beams-background';
+import { Sidebar } from './components/Sidebar';
+import { motion, AnimatePresence } from 'framer-motion';
 
 declare const pdfjsLib: any;
 
@@ -38,6 +37,18 @@ const App: React.FC = () => {
   
   const [showInstructions, setShowInstructions] = useState<boolean>(false);
   const [showAbout, setShowAbout] = useState<boolean>(false);
+
+  const handleNewPlan = () => {
+    setGeneratedData(null);
+    setError(null);
+    setCompetency('');
+    setPdfFileName(null);
+    setPdfText(null);
+    const fileInput = document.getElementById('pdf-upload') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  };
 
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -136,64 +147,100 @@ const App: React.FC = () => {
     );
   }
 
-  return (
-    <BeamsBackground>
-      <div className="text-white">
-        <Header 
-          onShowAbout={() => setShowAbout(true)} 
-          onShowInstructions={() => setShowInstructions(true)} 
-        />
+  const contentVariants = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeInOut' } },
+    exit: { opacity: 0, y: -20, transition: { duration: 0.3, ease: 'easeInOut' } },
+  };
 
-        <main className="container mx-auto p-4 sm:p-6 md:p-8 relative z-10">
-          <CompetencyInput
-            value={competency}
-            onChange={(e) => setCompetency(e.target.value)}
-            onSubmit={handleGeneratePlan}
-            isLoading={isLoading}
-            numberOfDays={numberOfDays}
-            onDaysChange={setNumberOfDays}
-            language={language}
-            onLanguageChange={setLanguage}
-            printInfo={printInfo}
-            onPrintInfoChange={setPrintInfo}
-            onFileChange={handleFileChange}
-            onRemoveFile={handleRemoveFile}
-            pdfFileName={pdfFileName}
-            isParsingPdf={isParsingPdf}
-            integrateObjectives={integrateObjectives}
-            onIntegrateObjectivesChange={setIntegrateObjectives}
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <motion.div key="loader" variants={contentVariants} initial="initial" animate="animate" exit="exit">
+          <Loader />
+        </motion.div>
+      );
+    }
+    if (error) {
+       return (
+         <motion.div
+           key="error"
+           variants={contentVariants}
+           initial="initial"
+           animate="animate"
+           exit="exit"
+           className="max-w-4xl mx-auto rounded-xl bg-card-dark border border-red-500/50 text-red-300 p-6" 
+           role="alert"
+         >
+           <p className="font-bold text-lg">Error</p>
+           <p className="mt-2 text-red-400">{error}</p>
+         </motion.div>
+       );
+    }
+    if (generatedData) {
+      return (
+        <motion.div 
+          key="lesson-plan"
+          variants={contentVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          id="lesson-plan-content" 
+          className="max-w-5xl mx-auto"
+        >
+          <div className="flex justify-between items-center my-8 no-print">
+              <h2 className="text-3xl font-bold text-text-primary">Generated Lesson Plan</h2>
+              <ExportControls lessonPlan={generatedData.lessonPlan} competency={competency} onShowPrintPreview={() => setShowPrintPreview(true)} />
+          </div>
+          <LessonPlanDisplay
+            lessonPlan={generatedData.lessonPlan}
+            onUpdate={handlePlanUpdate}
           />
-          
-          {error && (
-            <div className="max-w-4xl mx-auto rounded-lg bg-red-900/50 border border-red-500/50 text-red-300 p-4 my-8" role="alert">
-              <p className="font-bold">Error</p>
-              <p>{error}</p>
-            </div>
-          )}
+        </motion.div>
+      );
+    }
+    return (
+      <motion.div key="welcome" variants={contentVariants} initial="initial" animate="animate" exit="exit">
+        <Welcome />
+      </motion.div>
+    );
+  };
 
-          {isLoading && <Loader />}
+  return (
+    <div className="min-h-screen flex text-text-primary">
+      <Sidebar
+        competency={competency}
+        onCompetencyChange={(e) => setCompetency(e.target.value)}
+        onGenerate={handleGeneratePlan}
+        isLoading={isLoading}
+        numberOfDays={numberOfDays}
+        onDaysChange={setNumberOfDays}
+        language={language}
+        onLanguageChange={setLanguage}
+        printInfo={printInfo}
+        onPrintInfoChange={setPrintInfo}
+        onFileChange={handleFileChange}
+        onRemoveFile={handleRemoveFile}
+        pdfFileName={pdfFileName}
+        isParsingPdf={isParsingPdf}
+        integrateObjectives={integrateObjectives}
+        onIntegrateObjectivesChange={setIntegrateObjectives}
+        onShowAbout={() => setShowAbout(true)} 
+        onShowInstructions={() => setShowInstructions(true)} 
+        onNewPlan={handleNewPlan}
+      />
 
-          <div className="print-container">
-              {!isLoading && !generatedData && <Welcome />}
-              {generatedData && (
-                <div id="lesson-plan-content" className="max-w-4xl mx-auto">
-                  <div className="flex justify-between items-center my-8 no-print">
-                      <h2 className="text-3xl font-bold text-white">Generated Lesson Plan</h2>
-                      <ExportControls lessonPlan={generatedData.lessonPlan} competency={competency} onShowPrintPreview={() => setShowPrintPreview(true)} />
-                  </div>
-                  <LessonPlanDisplay
-                    lessonPlan={generatedData.lessonPlan}
-                    onUpdate={handlePlanUpdate}
-                  />
-                </div>
-              )}
-            </div>
-        </main>
-        
+      <main className="flex-1 p-4 sm:p-6 md:p-10 overflow-y-auto" style={{ marginLeft: '384px' /* width of sidebar */}}>
+          <AnimatePresence mode="wait">
+            {renderContent()}
+          </AnimatePresence>
+      </main>
+      
+      <AnimatePresence>
         {showInstructions && <InstructionsModal onClose={() => setShowInstructions(false)} />}
         {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
-      </div>
-    </BeamsBackground>
+      </AnimatePresence>
+    </div>
   );
 };
 

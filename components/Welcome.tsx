@@ -1,22 +1,34 @@
 import React from 'react';
 import { IconBook } from './Icon';
 import { VerticalCutReveal } from './ui/vertical-cut-reveal';
-import { TimelineContent } from './ui/timeline-animation';
+import { motion } from 'framer-motion';
 
 export const Welcome: React.FC = () => {
     return (
-        <TimelineContent>
-            <div className="text-center bg-neutral-950/50 border border-neutral-800 rounded-xl p-8 md:p-16">
-                <div className="w-16 h-16 bg-blue-900/50 border border-blue-500/30 rounded-lg flex items-center justify-center mx-auto mb-6">
-                    <IconBook className="w-9 h-9 text-blue-400" />
-                </div>
-                <h2 className="text-3xl font-bold text-white mb-4">
-                     Your Lesson Plan Awaits
-                </h2>
-                <p className="max-w-2xl mx-auto text-gray-400">
-                    The generated lesson plan will appear here once you provide a competency or PDF and click the generate button.
-                </p>
-            </div>
-        </TimelineContent>
+        <div className="flex flex-col items-center justify-center text-center h-[80vh]">
+            <motion.div
+                className="w-20 h-20 bg-card-dark border border-border-color rounded-2xl flex items-center justify-center mx-auto mb-6"
+                animate={{
+                    scale: [1, 1.05, 1],
+                    rotate: [0, 2, -2, 0],
+                }}
+                transition={{
+                    duration: 5,
+                    ease: "easeInOut",
+                    repeat: Infinity,
+                    repeatType: "mirror",
+                }}
+            >
+                <IconBook className="w-10 h-10 text-[var(--accent-color-end)]" />
+            </motion.div>
+            <h2 className="text-4xl font-bold text-text-primary mb-4">
+                 <VerticalCutReveal>
+                    Your Lesson Plan Awaits
+                 </VerticalCutReveal>
+            </h2>
+            <p className="max-w-2xl mx-auto text-text-secondary">
+                Use the sidebar to provide a competency or PDF, then click "Generate Plan" to see the magic happen here.
+            </p>
+        </div>
     );
 };

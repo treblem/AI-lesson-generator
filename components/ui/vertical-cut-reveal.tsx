@@ -1,6 +1,6 @@
 'use client'
 
-import {
+import React, {
   forwardRef,
   useCallback,
   useEffect,
@@ -10,7 +10,6 @@ import {
   useState,
 } from "react"
 import { motion } from "framer-motion"
-// FIX: 'DynamicAnimationOptions' is deprecated. Using 'AnimationOptions' instead.
 import type { AnimationOptions } from "framer-motion"
 import { cn } from "../../lib/utils"
 
@@ -49,7 +48,7 @@ const VerticalCutReveal = forwardRef<VerticalCutRevealRef, TextProps>(
         type: "spring",
         stiffness: 190,
         damping: 22,
-      },
+      } as AnimationOptions,
       splitBy = "words",
       staggerDuration = 0.2,
       staggerFrom = "first",
@@ -70,7 +69,6 @@ const VerticalCutReveal = forwardRef<VerticalCutRevealRef, TextProps>(
 
     const splitIntoCharacters = (text: string): string[] => {
       if (typeof Intl !== "undefined" && "Segmenter" in Intl) {
-        // Fix: Property 'Segmenter' does not exist on type 'typeof Intl'. Cast Intl to any to allow access.
         const segmenter = new (Intl as any).Segmenter("en", { granularity: "grapheme" })
         return Array.from(segmenter.segment(text), ({ segment }: { segment: string }) => segment)
       }

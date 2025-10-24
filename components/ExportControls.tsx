@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { LessonPlan } from '../types';
 import { IconPrinter, IconCopy, IconCheck } from './Icon';
+import { motion } from 'framer-motion';
 
 interface ExportControlsProps {
   lessonPlan: LessonPlan;
@@ -42,10 +43,12 @@ export const ExportControls: React.FC<ExportControlsProps> = ({ lessonPlan, comp
   };
 
   return (
-    <div className="flex items-center space-x-2 no-print">
-      <button
+    <div className="flex items-center space-x-3 no-print">
+      <motion.button
         onClick={handleCopy}
-        className="flex items-center px-4 py-2 text-sm font-semibold text-gray-300 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 rounded-md transition-colors duration-200"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="flex items-center px-4 py-2 text-sm font-semibold text-text-secondary bg-card-dark hover:text-text-primary border border-border-color rounded-lg transition-colors"
         title="Copy raw text to clipboard"
       >
         {copied ? (
@@ -59,15 +62,17 @@ export const ExportControls: React.FC<ExportControlsProps> = ({ lessonPlan, comp
             Copy Text
           </>
         )}
-      </button>
-      <button
+      </motion.button>
+      <motion.button
         onClick={onShowPrintPreview}
-        className="flex items-center px-4 py-2 text-sm font-semibold bg-gradient-to-t from-blue-600 to-blue-500 text-white hover:from-blue-700 hover:to-blue-600 rounded-md transition-all duration-200"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="flex items-center px-4 py-2 text-sm font-semibold bg-gradient-to-r from-[var(--accent-color-start)] to-[var(--accent-color-end)] text-white rounded-lg transition-all"
         title="Open DepEd formatted print preview"
       >
         <IconPrinter className="w-4 h-4 mr-2" />
         Print / PDF
-      </button>
+      </motion.button>
     </div>
   );
 };
