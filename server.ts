@@ -2094,8 +2094,8 @@ CRITICAL RULE — GENERATE THE POWERPOINT BASED ON THE LESSON PLAN, NOT THE LESS
           .replace(/\s+/g, ' ')
           .slice(0, 340);
         const seed = Math.abs(
-          Array.from(slideTitle || deckTitle || 'slide').reduce(
-            (acc, ch) => (acc * 31 + ch.charCodeAt(0)) | 0,
+          Array.from(String(slideTitle || deckTitle || 'slide')).reduce(
+            (acc: number, ch: string) => (acc * 31 + ch.charCodeAt(0)) | 0,
             7
           )
         ) % 100000;

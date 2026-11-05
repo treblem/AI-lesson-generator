@@ -18,6 +18,7 @@ export interface DayPlan {
   soloObjectives?: string[];
   hotsObjectives?: string[];
   cotAlignments?: COTAlignmentItem[];
+  flowDetails?: any;
   sections: LessonPlanSection[];
 }
 
