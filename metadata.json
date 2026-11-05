@@ -1,5 +1,6 @@
 {
   "name": "DepEd AI Lesson Plan Generator",
-  "description": "An AI-assisted web application where teachers input competencies, and the system automatically generates a structured lesson plan using the DepEd A-J format, integrated with SOLO taxonomy and HOTS-based objectives.",
-  "requestFramePermissions": []
+  "description": "An AI-assisted web application where teachers input competencies, and real-time generation automatically drafts a structured lesson plan following the modern DepEd Order No. 016, s. 2026 ILAW framework, integrated with SOLO taxonomy and HOTS-based objectives.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
